@@ -6,9 +6,10 @@
     <script type="text/javascript">
         function UpdateQrCode() {
             var data = document.getElementById("url").value;
+            var lvl = document.getElementById("ecl").value;
 
             // Create QR Code
-            var qr = qrcode(0, "L");
+            var qr = qrcode(0, lvl);
             qr.addData(data);
             qr.make();
 
@@ -42,7 +43,12 @@
 
             // Add OpenSCAD code epilogue
             code += "// Render QR code with default settings (module 1x1x1)\r\n";
-            code += "qr_render(qr_data);\r\n";
+            code += "maxmod = len(qr_data) - 1;\r\n";
+            code += "difference(){\r\n";
+            code += "   translate([-0.5,-0.5,-0.3])\r\n";
+            code += "       cube([maxmod+2, maxmod+2, 1]);\r\n";
+            code += "   qr_render(qr_data);\r\n";
+            code += "}\r\n";
             code += "\r\n";
             code += "// QR code rendering method\r\n";
             code += "module qr_render(data, module_size = 1, height = 1) {\r\n";
@@ -121,6 +127,13 @@
     <div id="input" class="module">
         <p><label for="url">Enter URL or other value to encode:</label></p>
         <input type="text" name="url" id="url" value="https://www.rider.cz/" oninput="UpdateQrCode()" />
+         <label for="ecl">Error correction level :</label>
+         <select name="ecl" id="ecl" onchange="UpdateQrCode()">
+             <option value="L">L: 7%</option>
+             <option value="M">M: 15%</option>
+             <option value="Q">Q: 25%</option>
+             <option value="H">H: 25%</option>
+         </select>
     </div>
     <div id="qr" class="module"></div>
     <div id="code" class="module"></div>
